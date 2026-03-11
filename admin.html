@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumière Textiles | Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="blob-bg"></div>
+    <div class="blob-bg blob-2"></div>
+    
+    <nav class="glass-nav">
+        <div class="nav-container">
+            <h1 class="logo">Lumière <span style="font-size: 1rem; color: var(--text-secondary); font-weight: 400;">Admin</span></h1>
+            <ul class="nav-links">
+                <li><a href="index.html">View Catalog</a></li>
+                <li><a href="admin.html" class="active">Upload Product</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="catalog-section" style="padding-top: 4rem;">
+        <div style="max-width: 600px; margin: 0 auto; background: var(--glass-bg); padding: 2.5rem; border-radius: 20px; border: 1px solid var(--glass-border); backdrop-filter: blur(16px);">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">Add New Product</h2>
+            
+            <form id="upload-form" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- Output messages -->
+                <div id="status-message" style="display: none; padding: 1rem; border-radius: 8px; font-weight: 500;"></div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label for="title" style="color: var(--text-secondary); font-size: 0.9rem;">Product Title</label>
+                    <input type="text" id="title" name="title" required style="background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); padding: 0.8rem 1rem; border-radius: 8px; color: white; font-family: inherit;">
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
+                        <label for="price" style="color: var(--text-secondary); font-size: 0.9rem;">Price ($)</label>
+                        <input type="number" id="price" name="price" required min="0" step="0.01" style="background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); padding: 0.8rem 1rem; border-radius: 8px; color: white; font-family: inherit;">
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
+                        <label for="category" style="color: var(--text-secondary); font-size: 0.9rem;">Category</label>
+                        <select id="category" name="category" required style="background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); padding: 0.8rem 1rem; border-radius: 8px; color: white; font-family: inherit;">
+                            <option value="embroidery" style="color: black;">Embroidery</option>
+                            <option value="block-print" style="color: black;">Block Print</option>
+                            <option value="brush-paint" style="color: black;">Brush Paint</option>
+                            <option value="screen-print" style="color: black;">Screen Print</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label for="description" style="color: var(--text-secondary); font-size: 0.9rem;">Description</label>
+                    <textarea id="description" name="description" rows="4" required style="background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); padding: 0.8rem 1rem; border-radius: 8px; color: white; font-family: inherit; resize: vertical;"></textarea>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label for="images" style="color: var(--text-secondary); font-size: 0.9rem;">Product Images (PNG/JPG)</label>
+                    <input type="file" id="images" name="images" accept="image/*" multiple required style="background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); padding: 0.8rem 1rem; border-radius: 8px; color: white; font-family: inherit;">
+                </div>
+
+                <button type="submit" style="background: var(--accent); color: white; border: none; padding: 1rem; border-radius: 8px; font-family: inherit; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 1rem; transition: background 0.3s;" onmouseover="this.style.background='var(--accent-hover)'" onmouseout="this.style.background='var(--accent)'">
+                    Upload to Catalog
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <script src="admin.js"></script>
+</body>
+</html>

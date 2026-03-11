@@ -1,0 +1,67 @@
+[
+  {
+    "id": "1773248739011",
+    "title": "suits",
+    "category": "embroidery",
+    "description": "siusss",
+    "price": "575",
+    "images": [
+      "images/1773248738988-488505236.jpeg",
+      "images/1773248738990-573971739.jpeg",
+      "images/1773248738995-282254297.jpeg",
+      "images/1773248739003-852169633.jpeg",
+      "images/1773248739005-810169502.jpeg"
+    ]
+  },
+  {
+    "id": "1773248487811",
+    "title": "Multi Photo Demo",
+    "category": "embroidery",
+    "description": "A test product with multi-image support",
+    "price": "1999",
+    "images": [
+      "images/1773248487784-564181350.png",
+      "images/1773248487798-14796172.png"
+    ]
+  },
+  {
+    "id": "1",
+    "title": "Royal Zardosi",
+    "category": "embroidery",
+    "description": "Exquisite hand-stitched floral embroidery with metallic threads on premium velvet.",
+    "price": "150",
+    "images": [
+      "images/embroidery.png"
+    ]
+  },
+  {
+    "id": "2",
+    "title": "Heritage Indigo",
+    "category": "block-print",
+    "description": "Traditional geometric and botanical block print in deep indigo on organic cotton.",
+    "price": "85",
+    "images": [
+      "images/block_print.png"
+    ]
+  },
+  {
+    "id": "3",
+    "title": "Abstract Flow",
+    "category": "brush-paint",
+    "description": "Expressive sweeping strokes of pastel and neon on high-quality dark canvas.",
+    "price": "120",
+    "images": [
+      "images/brush_paint.png"
+    ]
+  },
+  {
+    "id": "4",
+    "title": "Urban Vector",
+    "category": "screen-print",
+    "description": "Modern minimalist high-contrast screen print on a sleek dark fabric base.",
+    "price": "65",
+    "images": [
+      "images/screen_print.png"
+    ]
+  }
+]

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumière Textiles | Premium Catalog</title>
+    <meta name="description" content="Discover our premium collection of artisanal textiles, featuring intricate embroidery, block prints, brush paints, and screen prints.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="blob-bg"></div>
+    <div class="blob-bg blob-2"></div>
+    
+    <nav class="glass-nav">
+        <div class="nav-container">
+            <h1 class="logo">Lumière</h1>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Catalog</a></li>
+                <li><a href="#">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h2 class="hero-title">Artisanal Textile <span>Collection</span></h2>
+            <p class="hero-subtitle">Explore our curated selection of premium handcrafted fabrics and designs. From timeless embroidery to vivid screen prints.</p>
+        </div>
+    </header>
+
+    <main class="catalog-section">
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All Designs</button>
+            <button class="filter-btn" data-filter="embroidery">Embroidery</button>
+            <button class="filter-btn" data-filter="block-print">Block Print</button>
+            <button class="filter-btn" data-filter="brush-paint">Brush Paint</button>
+            <button class="filter-btn" data-filter="screen-print">Screen Print</button>
+        </div>
+
+        <div id="product-grid" class="product-grid">
+            <!-- Products will be injected here via JavaScript -->
+        </div>
+    </main>
+
+    <footer class="glass-footer">
+        <p>&copy; 2026 Lumière Textiles. All rights reserved.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
