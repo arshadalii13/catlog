@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking Photo Upload</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <style>
+:root{--primary:#6366f1;--pl:#818cf8;--bg:#0a0f1e;--card:rgba(20,30,55,.78);--inp:rgba(10,15,35,.7);--txt:#f1f5f9;--muted:#94a3b8;--bdr:rgba(255,255,255,.09);--ok:#10b981;--err:#ef4444;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Outfit',sans-serif;}
+body{background:var(--bg);background-image:radial-gradient(ellipse at 20% 0%,rgba(99,102,241,.18),transparent 50%),radial-gradient(ellipse at 80% 100%,rgba(34,211,238,.12),transparent 50%);color:var(--txt);min-height:100vh;padding:28px 16px 60px;display:flex;flex-direction:column;align-items:center;}
+nav{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:26px;width:100%;max-width:940px;}
+nav a{color:var(--pl);text-decoration:none;font-weight:600;padding:7px 16px;border:1.5px solid rgba(99,102,241,.4);border-radius:8px;background:rgba(99,102,241,.08);transition:all .2s;font-size:.88rem;}
+nav a:hover,nav a.on{background:var(--primary);color:#fff;border-color:var(--primary);}
+.ph{text-align:center;margin-bottom:32px;width:100%;max-width:940px;}
+.ph h1{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:700;background:linear-gradient(135deg,#818cf8,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;}
+.ph p{color:var(--muted);}
+.card{background:var(--card);backdrop-filter:blur(18px);border:1px solid var(--bdr);border-radius:20px;padding:26px;width:100%;max-width:940px;box-shadow:0 28px 56px rgba(0,0,0,.35);margin-bottom:22px;}
+.stitle{font-size:1rem;font-weight:600;color:var(--pl);margin-bottom:16px;display:flex;align-items:center;gap:6px;}
+/* GitHub Config */
+.cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:600px){.cfg-grid{grid-template-columns:1fr;}}
+.fld label{display:block;font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.fld input{width:100%;background:var(--inp);border:1px solid var(--bdr);border-radius:9px;padding:10px 13px;color:var(--txt);font-size:.9rem;outline:none;transition:border-color .2s,box-shadow .2s;}
+.fld input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.2);}
+.cfg-status{margin-top:12px;padding:10px 14px;border-radius:9px;font-size:.85rem;font-weight:600;display:none;}
+.cfg-status.ok{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3);display:block;}
+.cfg-status.bad{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.3);display:block;}
+/* Drop zone */
+.dz{border:2px dashed rgba(99,102,241,.45);border-radius:14px;padding:46px 20px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(99,102,241,.04);position:relative;}
+.dz:hover,.dz.over{border-color:var(--pl);background:rgba(99,102,241,.11);}
+.dz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.dz-icon{font-size:2.8rem;margin-bottom:10px;}
+.dz h3{font-size:1.1rem;font-weight:600;margin-bottom:5px;}
+.dz p{color:var(--muted);font-size:.88rem;}
+/* Preview grid */
+#pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:20px;}
+.pc{background:rgba(10,15,35,.75);border:1px solid var(--bdr);border-radius:13px;overflow:hidden;position:relative;transition:transform .2s,box-shadow .2s;}
+.pc:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.4);}
+.pc img{width:100%;height:150px;object-fit:cover;display:block;}
+.pc .qr-status{position:absolute;top:7px;left:7px;background:rgba(0,0,0,0.6);color:#fff;font-size:0.7rem;padding:3px 8px;border-radius:12px;font-weight:600;backdrop-filter:blur(4px);}
+.pc .pb{padding:12px;}
+.fg{margin-bottom:9px;}
+.fg label{display:block;font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.fg input{width:100%;background:var(--inp);border:1px solid var(--bdr);border-radius:7px;padding:7px 9px;color:var(--txt);font-size:.84rem;outline:none;transition:border-color .2s;}
+.fg input:focus{border-color:var(--primary);}
+.fg input.err{border-color:var(--err);}
+.rm{position:absolute;top:7px;right:7px;background:rgba(239,68,68,.85);border:none;border-radius:50%;width:26px;height:26px;color:#fff;font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+.rm:hover{background:var(--err);}
+/* Upload progress */
+.up-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(10,15,35,.6);border:1px solid var(--bdr);border-radius:10px;margin-bottom:8px;font-size:.88rem;}
+.up-item .up-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.up-item .up-icon{font-size:1.2rem;flex-shrink:0;}
+.up-item.done .up-icon::after{content:'✅';}
+.up-item.fail .up-icon::after{content:'❌';}
+.up-item.going .up-icon::after{content:'⏳';}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 26px;border-radius:10px;border:none;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .25s;}
+.btn-p{background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;box-shadow:0 4px 18px rgba(99,102,241,.4);}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(99,102,241,.5);}
+.btn-p:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-s{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--bdr);}
+.btn-s:hover{background:rgba(255,255,255,.12);color:#fff;}
+.abar{display:flex;gap:11px;flex-wrap:wrap;align-items:center;margin-top:22px;}
+.cbadge{margin-left:auto;color:var(--muted);font-size:.88rem;}
+/* Records */
+.rlist{display:flex;flex-direction:column;gap:11px;}
+.rrow{display:flex;align-items:center;gap:12px;background:rgba(10,15,35,.6);border:1px solid var(--bdr);border-radius:11px;padding:11px 15px;transition:background .2s;}
+.rrow:hover{background:rgba(99,102,241,.07);}
+.rthumb{width:52px;height:52px;border-radius:9px;object-fit:cover;flex-shrink:0;border:1px solid var(--bdr);cursor:pointer;}
+.rinfo{flex:1;min-width:0;}
+.rinfo strong{display:block;font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rmeta{font-size:.78rem;color:var(--muted);margin-top:2px;}
+.rdel{background:none;border:none;color:#f87171;font-size:1rem;cursor:pointer;padding:4px 7px;border-radius:6px;transition:background .2s;}
+.rdel:hover{background:rgba(239,68,68,.15);}
+.spill{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);border-radius:20px;padding:5px 16px;font-size:.82rem;color:var(--pl);font-weight:600;margin-right:6px;}
+/* Toast */
+#toast{position:fixed;bottom:28px;right:22px;padding:13px 20px;border-radius:11px;font-weight:600;font-size:.92rem;z-index:9999;opacity:0;transform:translateY(18px);transition:opacity .3s,transform .3s;pointer-events:none;}
+#toast.show{opacity:1;transform:translateY(0);}
+#toast.ok{background:rgba(16,185,129,.92);color:#fff;}
+#toast.er{background:rgba(239,68,68,.92);color:#fff;}
+#toast.in{background:rgba(99,102,241,.92);color:#fff;}
+.empty{text-align:center;padding:38px 20px;color:var(--muted);}
+.empty .ei{font-size:2.4rem;margin-bottom:9px;}
+/* Modal */
+#imod{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:10000;align-items:center;justify-content:center;}
+#imod.open{display:flex;}
+#imod img{max-width:90vw;max-height:88vh;border-radius:14px;box-shadow:0 18px 55px rgba(0,0,0,.6);}
+#imod .cm{position:fixed;top:16px;right:20px;font-size:1.4rem;color:#fff;cursor:pointer;background:rgba(255,255,255,.12);border:none;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+#imod .cm:hover{background:rgba(255,255,255,.26);}
+@media(max-width:580px){#pgrid{grid-template-columns:1fr 1fr;}.abar{flex-direction:column;align-items:stretch;}.btn{justify-content:center;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="qr.html">📄 Labels</a>
+  <a href="scanner.html">🔍 Scanner</a>
+  <a href="dispatched.html">📋 Dispatched</a>
+  <a href="tracking.html" class="on">📸 Upload Tracking</a>
+  <a href="search.html">🔎 Search Photos</a>
+</nav>
+
+<div class="ph">
+  <h1>📸 Tracking Photo Upload</h1>
+  <p>Upload delivery photos to GitHub — searchable by name, pincode, or phone.</p>
+</div>
+
+<!-- GitHub Config -->
+<div class="card">
+  <div class="stitle">⚙️ GitHub Configuration <span style="font-size:.78rem;color:var(--muted);font-weight:400;">(saved locally)</span></div>
+  <div class="cfg-grid">
+    <div class="fld"><label>GitHub Token (PAT)</label><input type="password" id="cfg-token" placeholder="ghp_xxxxxxxxxxxx"></div>
+    <div class="fld"><label>Repository (owner/repo)</label><input type="text" id="cfg-repo" placeholder="yourname/tracking-photos"></div>
+    <div class="fld"><label>Branch</label><input type="text" id="cfg-branch" placeholder="main"></div>
+    <div class="fld" style="display:flex;align-items:flex-end;gap:10px;">
+      <button class="btn btn-s" style="flex:1;" onclick="saveConfig()">💾 Save Config</button>
+      <button class="btn btn-s" onclick="testConfig()">🔗 Test</button>
+    </div>
+  </div>
+  <div id="cfg-status" class="cfg-status"></div>
+  <p style="margin-top:12px;font-size:.78rem;color:var(--muted);">⚠️ Token needs <strong>repo</strong> scope. Your token is stored only in this browser (localStorage).</p>
+</div>
+
+<!-- Upload -->
+<div class="card">
+  <div class="stitle">⬆️ Upload Photos</div>
+  <div class="dz" id="dz">
+    <input type="file" id="fi" accept="image/*" multiple>
+    <div class="dz-icon">🖼️</div>
+    <h3>Drop photos here or click to browse</h3>
+    <p>JPG, PNG, WEBP — multiple files supported</p>
+  </div>
+  <div id="pgrid"></div>
+  <div class="abar" id="abar" style="display:none;">
+    <button class="btn btn-p" onclick="uploadAll()" id="ubtn">☁️ Upload to GitHub</button>
+    <button class="btn btn-s" onclick="clearPending()">🗑 Clear</button>
+    <span class="cbadge" id="pcnt"></span>
+  </div>
+  <div id="uplog" style="margin-top:16px;"></div>
+</div>
+
+<!-- Records -->
+<div class="card">
+  <div class="stitle">📦 Uploaded Records <button class="btn btn-s" style="padding:5px 14px;font-size:.8rem;margin-left:auto;" onclick="loadRecords()">↻ Refresh</button></div>
+  <div id="sbar" style="margin-bottom:14px;"></div>
+  <div class="rlist" id="rlist"><div class="empty"><div class="ei">📭</div><p>No records yet.</p></div></div>
+</div>
+
+<div id="imod">
+  <button class="cm" onclick="closeMod()">✕</button>
+  <img id="mimg" src="" alt="">
+</div>
+<div id="toast"></div>
+
+<script>
+const CFGKEY = 'ghTrackCfg';
+const RECKEY = 'trackingPhotos'; // local cache
+let pending = [];
+let cfg = {};
+
+// ── Config ──
+function loadConfig(){
+  try{ cfg = JSON.parse(localStorage.getItem(CFGKEY)||'{}'); }catch{ cfg={}; }
+  if(cfg.token) document.getElementById('cfg-token').value = cfg.token;
+  if(cfg.repo)  document.getElementById('cfg-repo').value  = cfg.repo;
+  document.getElementById('cfg-branch').value = cfg.branch||'main';
+}
+function saveConfig(){
+  cfg.token  = document.getElementById('cfg-token').value.trim();
+  cfg.repo   = document.getElementById('cfg-repo').value.trim();
+  cfg.branch = document.getElementById('cfg-branch').value.trim()||'main';
+  if(!cfg.token||!cfg.repo){ toast('Fill in Token and Repo','er'); return; }
+  localStorage.setItem(CFGKEY, JSON.stringify(cfg));
+  toast('Config saved!','ok');
+}
+async function testConfig(){
+  saveConfig();
+  const st = document.getElementById('cfg-status');
+  st.className='cfg-status'; st.textContent='Testing…'; st.style.display='block';
+  try{
+    const r = await ghGet(`repos/${cfg.repo}`);
+    st.className='cfg-status ok'; st.textContent=`✅ Connected to "${r.full_name}" (${r.private?'private':'public'})`;
+  }catch(e){
+    st.className='cfg-status bad'; st.textContent='❌ '+e.message;
+  }
+}
+
+// ── GitHub API ──
+function ghHeaders(){ return {'Authorization':'token '+cfg.token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'}; }
+async function ghGet(path){
+  const r = await fetch(`https://api.github.com/${path}`,{headers:ghHeaders()});
+  if(!r.ok){ const e=await r.json(); throw new Error(e.message||r.status); }
+  return r.json();
+}
+async function ghPut(path,body){
+  const r = await fetch(`https://api.github.com/${path}`,{method:'PUT',headers:ghHeaders(),body:JSON.stringify(body)});
+  if(!r.ok){ const e=await r.json(); throw new Error(e.message||r.status); }
+  return r.json();
+}
+async function ghDel(path,body){
+  const r = await fetch(`https://api.github.com/${path}`,{method:'DELETE',headers:ghHeaders(),body:JSON.stringify(body)});
+  if(!r.ok){ const e=await r.json(); throw new Error(e.message||r.status); }
+  return r.json();
+}
+
+async function getFileSHA(path){
+  try{ const d=await ghGet(`repos/${cfg.repo}/contents/${path}?ref=${cfg.branch}`); return d.sha; }
+  catch{ return null; }
+}
+
+// Upload image file to GitHub
+async function uploadImage(filename, dataUrl){
+  const base64 = dataUrl.split(',')[1];
+  const path = `photos/${filename}`;
+  const sha = await getFileSHA(path);
+  const body = {message:`Add tracking photo: ${filename}`,content:base64,branch:cfg.branch};
+  if(sha) body.sha = sha;
+  await ghPut(`repos/${cfg.repo}/contents/${path}`, body);
+  return `https://raw.githubusercontent.com/${cfg.repo}/${cfg.branch}/${path}`;
+}
+
+// records.json helpers
+async function fetchRecordsJSON(){
+  try{
+    const d = await ghGet(`repos/${cfg.repo}/contents/records.json?ref=${cfg.branch}`);
+    const decoded = atob(d.content.replace(/\n/g,''));
+    return { records: JSON.parse(decoded), sha: d.sha };
+  }catch{ return { records:[], sha:null }; }
+}
+async function pushRecordsJSON(records, sha){
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(records,null,2))));
+  const body = {message:'Update records.json',content,branch:cfg.branch};
+  if(sha) body.sha = sha;
+  await ghPut(`repos/${cfg.repo}/contents/records.json`, body);
+}
+
+// ── File Input ──
+const dz = document.getElementById('dz');
+const fi = document.getElementById('fi');
+fi.addEventListener('change', e=>handleFiles(e.target.files));
+dz.addEventListener('dragover', e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave', ()=>dz.classList.remove('over'));
+dz.addEventListener('drop', e=>{e.preventDefault();dz.classList.remove('over');handleFiles(e.dataTransfer.files);});
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+
+function handleFiles(files){
+  const imgs = Array.from(files).filter(f=>f.type.startsWith('image/'));
+  if(!imgs.length){ toast('No valid images','er'); return; }
+  imgs.forEach(f=>{
+    const r=new FileReader();
+    r.onload=e=>{ 
+      const dataUrl = e.target.result;
+      const pid = uid();
+      const pObj = {id:pid,dataUrl,file:f,name:'',pincode:'',phone:'', status:'Scanning QR...'};
+      pending.push(pObj); 
+      renderGrid(); 
+      
+      // Auto-fetch via QR Code
+      const img = new Image();
+      img.onload = () => {
+        const cvs = document.createElement('canvas');
+        const ctx = cvs.getContext('2d');
+        let w = img.width, h = img.height;
+        // Scale down for performance
+        if(w > 1200) { h *= 1200/w; w = 1200; }
+        cvs.width = w; cvs.height = h;
+        ctx.drawImage(img, 0, 0, w, h);
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const code = jsQR(imgData.data, w, h, { inversionAttempts: "dontInvert" });
+        
+        if(code && code.data) {
+          let text = code.data;
+          let ph = text.match(/\b\d{10}\b/);
+          let pin = text.match(/\b\d{6}\b/);
+          if(ph) pObj.phone = ph[0];
+          if(pin) pObj.pincode = pin[0];
+          
+          let n = text;
+          if(ph) n = n.replace(ph[0], '');
+          if(pin) n = n.replace(pin[0], '');
+          pObj.name = n.trim();
+          pObj.status = '✅ QR Found';
+          toast('QR Code auto-detected!', 'in');
+        } else {
+          pObj.status = '⚠️ No QR';
+        }
+        renderGrid();
+      };
+      img.src = dataUrl;
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+function renderGrid(){
+  const g=document.getElementById('pgrid');
+  const ab=document.getElementById('abar');
+  if(!pending.length){ g.innerHTML=''; ab.style.display='none'; return; }
+  ab.style.display='flex';
+  document.getElementById('pcnt').textContent=`${pending.length} photo${pending.length>1?'s':''} pending`;
+  g.innerHTML=pending.map((p,i)=>`
+    <div class="pc" id="pc-${p.id}">
+      <div class="qr-status">${p.status}</div>
+      <img src="${p.dataUrl}" alt="">
+      <button class="rm" onclick="rmPending('${p.id}')">✕</button>
+      <div class="pb">
+        <div class="fg"><label>Name</label><input type="text" id="n-${p.id}" placeholder="Customer name" value="${p.name}" oninput="upd('${p.id}','name',this.value)"></div>
+        <div class="fg"><label>Pincode</label><input type="text" id="p-${p.id}" placeholder="6-digit pincode" maxlength="6" value="${p.pincode}" oninput="upd('${p.id}','pincode',this.value)"></div>
+        <div class="fg"><label>Phone</label><input type="tel" id="ph-${p.id}" placeholder="10-digit phone" maxlength="10" value="${p.phone}" oninput="upd('${p.id}','phone',this.value)"></div>
+      </div>
+    </div>`).join('');
+}
+function upd(id,f,v){ const p=pending.find(x=>x.id===id); if(p) p[f]=v.trim(); }
+function rmPending(id){ pending=pending.filter(p=>p.id!==id); renderGrid(); }
+function clearPending(){ pending=[]; renderGrid(); fi.value=''; document.getElementById('uplog').innerHTML=''; }
+
+// ── Upload All ──
+async function uploadAll(){
+  // Sync fields
+  let ok=true;
+  pending.forEach(p=>{
+    p.name=(document.getElementById(`n-${p.id}`)?.value||'').trim();
+    p.pincode=(document.getElementById(`p-${p.id}`)?.value||'').trim();
+    p.phone=(document.getElementById(`ph-${p.id}`)?.value||'').trim();
+    ['n','p','ph'].forEach(pre=>document.getElementById(`${pre}-${p.id}`)?.classList.remove('err'));
+    if(!p.name){ document.getElementById(`n-${p.id}`)?.classList.add('err'); ok=false; }
+    if(!p.pincode){ document.getElementById(`p-${p.id}`)?.classList.add('err'); ok=false; }
+    if(!p.phone){ document.getElementById(`ph-${p.id}`)?.classList.add('err'); ok=false; }
+  });
+  if(!ok){ toast('Fill all Name, Pincode & Phone fields','er'); return; }
+  if(!cfg.token||!cfg.repo){ toast('Save GitHub config first!','er'); return; }
+
+  const btn=document.getElementById('ubtn');
+  btn.disabled=true; btn.textContent='⏳ Uploading…';
+
+  const log=document.getElementById('uplog');
+  log.innerHTML='<div style="font-size:.85rem;color:var(--muted);margin-bottom:8px;">Upload progress:</div>';
+
+  // Fetch current records
+  let { records, sha } = await fetchRecordsJSON();
+
+  for(let p of pending){
+    const item=document.createElement('div');
+    item.className='up-item going';
+    item.innerHTML=`<span class="up-icon"></span><span class="up-name">${p.name} — ${p.file?.name||'photo'}</span><span style="color:var(--muted);font-size:.8rem;">Uploading…</span>`;
+    log.appendChild(item);
+    try{
+      const ts=new Date().toISOString();
+      const fname=`${Date.now()}_${p.name.replace(/\s+/g,'_').slice(0,20)}.jpg`;
+      const url=await uploadImage(fname, p.dataUrl);
+      const rec={id:p.id,name:p.name,pincode:p.pincode,phone:p.phone,photoUrl:url,photoPath:`photos/${fname}`,uploadedAt:ts};
+      records.push(rec);
+      // Push updated records.json after each photo
+      const res = await fetchRecordsJSON();
+      sha = res.sha;
+      records = res.records;
+      records.push(rec);
+      await pushRecordsJSON(records, sha);
+      const res2 = await fetchRecordsJSON();
+      records = res2.records; sha = res2.sha;
+
+      item.className='up-item done';
+      item.querySelector('span:last-child').textContent='Done ✅';
+    }catch(e){
+      item.className='up-item fail';
+      item.querySelector('span:last-child').textContent='Failed: '+e.message;
+    }
+  }
+
+  btn.disabled=false; btn.textContent='☁️ Upload to GitHub';
+  toast(`Upload complete!`,'ok');
+  clearPending();
+  loadRecords();
+}
+
+// ── Load & Display Records ──
+async function loadRecords(){
+  const list=document.getElementById('rlist');
+  list.innerHTML='<div class="empty"><div class="ei">⏳</div><p>Loading from GitHub…</p></div>';
+  if(!cfg.token||!cfg.repo){ list.innerHTML='<div class="empty"><div class="ei">⚙️</div><p>Configure GitHub first.</p></div>'; return; }
+  try{
+    const {records} = await fetchRecordsJSON();
+    renderRecords(records);
+  }catch(e){
+    list.innerHTML=`<div class="empty"><div class="ei">❌</div><p>${e.message}</p></div>`;
+  }
+}
+
+function renderRecords(records){
+  const list=document.getElementById('rlist');
+  const sb=document.getElementById('sbar');
+  sb.innerHTML=`<span class="spill">📦 ${records.length} Record${records.length!==1?'s':''}</span>${records.length?`<span class="spill">📅 Latest: ${fmtDate(records[records.length-1].uploadedAt)}</span>`:''}`;
+  if(!records.length){ list.innerHTML='<div class="empty"><div class="ei">📭</div><p>No records yet.</p></div>'; return; }
+  const rev=[...records].reverse();
+  list.innerHTML=rev.map(r=>`
+    <div class="rrow">
+      <img class="rthumb" src="${r.photoUrl}" alt="${r.name}" onclick="openMod('${r.photoUrl}')">
+      <div class="rinfo">
+        <strong>👤 ${r.name}</strong>
+        <div class="rmeta">📍 ${r.pincode} &nbsp;|&nbsp; 📞 ${r.phone} &nbsp;|&nbsp; 🕐 ${fmtDate(r.uploadedAt)}</div>
+      </div>
+      <button class="rdel" onclick="deleteRecord('${r.id}','${r.photoPath||''}')" title="Delete">🗑</button>
+    </div>`).join('');
+}
+
+async function deleteRecord(id, photoPath){
+  if(!confirm('Delete this tracking record from GitHub?')) return;
+  try{
+    const {records, sha} = await fetchRecordsJSON();
+    const updated = records.filter(r=>r.id!==id);
+    await pushRecordsJSON(updated, sha);
+    // Optionally delete image file
+    if(photoPath){
+      const fsha = await getFileSHA(photoPath);
+      if(fsha) await ghDel(`repos/${cfg.repo}/contents/${photoPath}`,{message:'Delete photo '+photoPath,sha:fsha,branch:cfg.branch});
+    }
+    toast('Record deleted','in');
+    loadRecords();
+  }catch(e){ toast('Delete failed: '+e.message,'er'); }
+}
+
+function fmtDate(iso){
+  if(!iso) return 'N/A';
+  const d=new Date(iso); if(isNaN(d)) return iso;
+  const p=n=>String(n).padStart(2,'0');
+  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function openMod(url){ document.getElementById('mimg').src=url; document.getElementById('imod').classList.add('open'); }
+function closeMod(){ document.getElementById('imod').classList.remove('open'); document.getElementById('mimg').src=''; }
+document.getElementById('imod').addEventListener('click',e=>{ if(e.target===document.getElementById('imod')) closeMod(); });
+
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.className=`${type} show`; t.textContent=msg;
+  setTimeout(()=>t.className='',3200);
+}
+
+// ── Init ──
+loadConfig();
+loadRecords();
+</script>
+</body>
+</html>
