@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Search Tracking Photos</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#6366f1;--pl:#818cf8;--bg:#0a0f1e;--card:rgba(20,30,55,.78);--inp:rgba(10,15,35,.7);--txt:#f1f5f9;--muted:#94a3b8;--bdr:rgba(255,255,255,.09);}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Outfit',sans-serif;}
+body{background:var(--bg);background-image:radial-gradient(ellipse at 80% 0%,rgba(34,211,238,.15),transparent 50%),radial-gradient(ellipse at 10% 100%,rgba(99,102,241,.15),transparent 50%);color:var(--txt);min-height:100vh;padding:28px 16px 60px;display:flex;flex-direction:column;align-items:center;}
+nav{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:26px;width:100%;max-width:940px;}
+nav a{color:var(--pl);text-decoration:none;font-weight:600;padding:7px 16px;border:1.5px solid rgba(99,102,241,.4);border-radius:8px;background:rgba(99,102,241,.08);transition:all .2s;font-size:.88rem;}
+nav a:hover,nav a.on{background:var(--primary);color:#fff;border-color:var(--primary);}
+.ph{text-align:center;margin-bottom:32px;width:100%;max-width:940px;}
+.ph h1{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:700;background:linear-gradient(135deg,#22d3ee,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;}
+.ph p{color:var(--muted);}
+.card{background:var(--card);backdrop-filter:blur(18px);border:1px solid var(--bdr);border-radius:20px;padding:26px;width:100%;max-width:940px;box-shadow:0 28px 56px rgba(0,0,0,.35);margin-bottom:22px;}
+/* Config */
+.cfg-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:flex-end;}
+@media(max-width:600px){.cfg-row{grid-template-columns:1fr;}}
+.fld label{display:block;font-size:.7rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.fld input{width:100%;background:var(--inp);border:1px solid var(--bdr);border-radius:9px;padding:10px 13px;color:var(--txt);font-size:.9rem;outline:none;transition:border-color .2s,box-shadow .2s;}
+.fld input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.2);}
+/* Search */
+.sbox{position:relative;margin-bottom:14px;}
+.sbox .si{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:1.1rem;pointer-events:none;}
+.sbox input{width:100%;background:var(--inp);border:1.5px solid var(--bdr);border-radius:13px;padding:14px 16px 14px 48px;color:var(--txt);font-size:1rem;outline:none;transition:border-color .25s,box-shadow .25s;}
+.sbox input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.2);}
+.sbox input::placeholder{color:var(--muted);}
+.fbts{display:flex;gap:8px;flex-wrap:wrap;}
+.fb{background:rgba(255,255,255,.05);border:1.5px solid var(--bdr);color:var(--muted);padding:6px 16px;border-radius:20px;font-size:.83rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.fb:hover{border-color:var(--pl);color:var(--pl);}
+.fb.on{background:var(--primary);border-color:var(--primary);color:#fff;}
+/* Stats */
+.rstats{display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:.88rem;color:var(--muted);flex-wrap:wrap;}
+.rstats strong{color:var(--pl);}
+.rbadge{background:rgba(99,102,241,.15);color:var(--pl);padding:2px 11px;border-radius:20px;font-weight:700;font-size:.82rem;}
+/* Results grid */
+#rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;}
+.rc{background:rgba(10,15,35,.72);border:1px solid var(--bdr);border-radius:15px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s;position:relative;}
+.rc:hover{transform:translateY(-4px);box-shadow:0 14px 38px rgba(99,102,241,.22);border-color:rgba(99,102,241,.4);}
+.rc img{width:100%;height:175px;object-fit:cover;display:block;}
+.rc .ci{padding:13px 15px;}
+.rc .cn{font-weight:700;font-size:.95rem;margin-bottom:5px;}
+.rc .ml{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2);color:var(--pl);padding:3px 9px;border-radius:20px;font-size:.75rem;font-weight:600;}
+.chip.ph{background:rgba(34,211,238,.1);border-color:rgba(34,211,238,.25);color:#67e8f9;}
+.chip.dt{background:rgba(255,255,255,.05);border-color:var(--bdr);color:var(--muted);}
+.vo{position:absolute;inset:0;height:175px;background:rgba(99,102,241,0);display:flex;align-items:center;justify-content:center;transition:background .25s;}
+.rc:hover .vo{background:rgba(99,102,241,.22);}
+.vo span{background:rgba(0,0,0,.72);color:#fff;padding:7px 18px;border-radius:20px;font-weight:600;font-size:.88rem;opacity:0;transform:scale(.85);transition:opacity .25s,transform .25s;}
+.rc:hover .vo span{opacity:1;transform:scale(1);}
+mark{background:rgba(253,224,71,.3);color:#fde047;border-radius:3px;padding:0 2px;}
+/* State boxes */
+.sb{text-align:center;padding:55px 20px;color:var(--muted);}
+.sb .si2{font-size:3.2rem;margin-bottom:12px;}
+.sb h3{font-size:1.15rem;font-weight:600;color:var(--txt);margin-bottom:5px;}
+.sb p{font-size:.92rem;}
+/* Modal */
+#imod{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:10000;align-items:center;justify-content:center;flex-direction:column;gap:18px;}
+#imod.open{display:flex;}
+#imod .mw{max-width:90vw;}
+#imod .mw img{max-width:100%;max-height:72vh;border-radius:13px;box-shadow:0 18px 55px rgba(0,0,0,.6);display:block;}
+#imod .mi{background:rgba(20,30,55,.96);border:1px solid var(--bdr);border-radius:15px;padding:16px 22px;max-width:90vw;width:400px;}
+#imod .mi .mn{font-size:1.1rem;font-weight:700;margin-bottom:8px;}
+#imod .mi .mm{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+#imod .cm{position:fixed;top:16px;right:20px;font-size:1.4rem;color:#fff;cursor:pointer;background:rgba(255,255,255,.12);border:none;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+#imod .cm:hover{background:rgba(255,255,255,.26);}
+.dlbtn{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;text-decoration:none;padding:9px 20px;border-radius:9px;font-weight:600;font-size:.88rem;transition:all .2s;}
+.dlbtn:hover{transform:translateY(-2px);box-shadow:0 5px 18px rgba(99,102,241,.5);}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:9px;border:none;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-s{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--bdr);}
+.btn-s:hover{background:rgba(255,255,255,.12);color:#fff;}
+@media(max-width:580px){#rgrid{grid-template-columns:1fr 1fr;}#imod .mi{width:90vw;}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="qr.html">📄 Labels</a>
+  <a href="scanner.html">🔍 Scanner</a>
+  <a href="dispatched.html">📋 Dispatched</a>
+  <a href="tracking.html">📸 Upload Tracking</a>
+  <a href="search.html" class="on">🔎 Search Photos</a>
+</nav>
+
+<div class="ph">
+  <h1>🔎 Search Tracking Photos</h1>
+  <p>Find delivery photos by customer name, pincode, or phone number.</p>
+</div>
+
+<!-- GitHub Config -->
+<details style="margin-bottom:20px;cursor:pointer;">
+  <summary style="color:var(--muted);font-size:0.85rem;text-align:right;">Admin Settings</summary>
+  <div class="card" style="margin-top:10px;cursor:default;">
+    <div style="font-size:1rem;font-weight:600;color:var(--pl);margin-bottom:14px;">⚙️ GitHub Source</div>
+    <div class="cfg-row">
+      <div class="fld"><label>Repository (owner/repo)</label><input type="text" id="cfg-repo" placeholder="yourname/tracking-photos"></div>
+      <div class="fld"><label>Branch</label><input type="text" id="cfg-branch" placeholder="main"></div>
+      <button class="btn btn-s" onclick="loadAndSearch()" style="white-space:nowrap;">🔄 Load Records</button>
+    </div>
+    <p style="margin-top:10px;font-size:.78rem;color:var(--muted);">For <strong>public</strong> repos, no token needed here. For private repos, also enter token below.</p>
+    <div class="fld" style="margin-top:10px;max-width:400px;"><label>GitHub Token (private repos only)</label><input type="password" id="cfg-token" placeholder="ghp_xxxx (optional for public repo)"></div>
+  </div>
+</details>
+
+<!-- Search -->
+<div class="card">
+  <div class="sbox"><span class="si">🔍</span><input type="text" id="si" placeholder="Enter your phone number or pincode to find your tracking photo..." autocomplete="off" autofocus oninput="doSearch()"></div>
+</div>
+
+<!-- Results -->
+<div class="card">
+  <div class="rstats" id="rstats" style="display:none;">
+    Showing <strong id="rcnt">0</strong> result(s) <span class="rbadge" id="rbadge">0</span>
+  </div>
+  <div id="rc">
+    <div class="sb" id="init-st"><div class="si2">🔎</div><h3>Start searching</h3><p>Type a name, pincode, or phone number above.</p></div>
+    <div class="sb" id="empty-st" style="display:none;"><div class="si2">😕</div><h3>No results found</h3><p>Try a different search term.</p></div>
+    <div class="sb" id="norec-st" style="display:none;"><div class="si2">📭</div><h3>No records loaded</h3><p>Click <strong>Load Records</strong> above first.</p></div>
+    <div class="sb" id="load-st" style="display:none;"><div class="si2">⏳</div><h3>Loading from GitHub…</h3><p>Please wait.</p></div>
+    <div id="rgrid"></div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="imod">
+  <button class="cm" onclick="closeMod()">✕</button>
+  <div class="mw"><img id="mimg" src="" alt=""></div>
+  <div class="mi">
+    <div class="mn" id="mname"></div>
+    <div class="mm" id="mmeta"></div>
+    <a id="mdl" class="dlbtn" download="tracking_photo.jpg">⬇️ Download Photo</a>
+  </div>
+</div>
+
+<script>
+const CFGKEY='ghTrackCfg';
+let allRecords=[];
+let activeFilter='all';
+
+// Config
+function loadCfg(){
+  try{
+    const c=JSON.parse(localStorage.getItem(CFGKEY)||'{}');
+    if(c.repo)  document.getElementById('cfg-repo').value=c.repo;
+    if(c.branch)document.getElementById('cfg-branch').value=c.branch;
+    if(c.token) document.getElementById('cfg-token').value=c.token;
+  }catch{}
+}
+function getCfg(){
+  const repo=document.getElementById('cfg-repo').value.trim();
+  const branch=document.getElementById('cfg-branch').value.trim()||'main';
+  const token=document.getElementById('cfg-token').value.trim();
+  if(repo) localStorage.setItem(CFGKEY,JSON.stringify({repo,branch,token}));
+  return{repo,branch,token};
+}
+
+// State helpers
+function showState(id){
+  ['init-st','empty-st','norec-st','load-st'].forEach(s=>document.getElementById(s).style.display='none');
+  document.getElementById(id).style.display='block';
+  document.getElementById('rgrid').innerHTML='';
+  document.getElementById('rstats').style.display='none';
+}
+
+// Load records from GitHub
+async function loadAndSearch(){
+  const{repo,branch,token}=getCfg();
+  if(!repo){ alert('Enter repository (owner/repo)'); return; }
+  showState('load-st');
+  try{
+    const headers={'Accept':'application/vnd.github.v3+json'};
+    if(token) headers['Authorization']='token '+token;
+    const rawUrl=`https://raw.githubusercontent.com/${repo}/${branch}/records.json`;
+    let res=await fetch(rawUrl,{headers});
+    if(!res.ok){
+      const apiUrl=`https://api.github.com/repos/${repo}/contents/records.json?ref=${branch}`;
+      const apiRes=await fetch(apiUrl,{headers});
+      if(!apiRes.ok) throw new Error('records.json not found. Upload some photos first.');
+      const d=await apiRes.json();
+      allRecords=JSON.parse(atob(d.content.replace(/\n/g,'')));
+    }else{
+      allRecords=await res.json();
+    }
+    showState('init-st');
+    const q=document.getElementById('si').value.trim();
+    if(q.length >= 4) doSearch(); else showState('init-st');
+  }catch(e){
+    showState('norec-st');
+    document.getElementById('norec-st').querySelector('p').textContent=e.message;
+  }
+}
+
+function hl(text,q){
+  if(!q) return text;
+  return String(text).replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'),'<mark>$1</mark>');
+}
+function fmtDate(iso){
+  if(!iso) return '';
+  const d=new Date(iso);if(isNaN(d))return iso;
+  const p=n=>String(n).padStart(2,'0');
+  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function doSearch(){
+  const raw=document.getElementById('si').value.trim();
+  const q=raw.toLowerCase();
+  if(!allRecords.length){ showState('norec-st'); return; }
+  
+  // Require at least 4 characters to prevent showing too many/all results
+  if(q.length < 4){ showState('init-st'); return; }
+
+  const matched=allRecords.filter(r=>
+    r.name.toLowerCase().includes(q)||r.pincode.toLowerCase().includes(q)||r.phone.toLowerCase().includes(q)
+  );
+
+  ['init-st','empty-st','norec-st','load-st'].forEach(s=>document.getElementById(s).style.display='none');
+
+  if(!matched.length){ document.getElementById('empty-st').style.display='block'; document.getElementById('rstats').style.display='none'; document.getElementById('rgrid').innerHTML=''; return; }
+
+  document.getElementById('rstats').style.display='flex';
+  document.getElementById('rcnt').textContent=matched.length;
+  document.getElementById('rbadge').textContent=matched.length;
+
+  document.getElementById('rgrid').innerHTML=matched.map(r=>`
+    <div class="rc" onclick="openMod('${r.id}')">
+      <div class="vo"><span>🔍 View Photo</span></div>
+      <img src="${r.photoUrl}" alt="${r.name}" loading="lazy">
+      <div class="ci">
+        <div class="cn">👤 ${hl(r.name,q)}</div>
+        <div class="ml">
+          <span class="chip">📍 ${hl(r.pincode,q)}</span>
+          <span class="chip ph">📞 ${hl(r.phone,q)}</span>
+          <span class="chip dt">🕐 ${fmtDate(r.uploadedAt)}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openMod(id){
+  const r=allRecords.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('mimg').src=r.photoUrl;
+  document.getElementById('mname').textContent=`👤 ${r.name}`;
+  document.getElementById('mmeta').innerHTML=`<span class="chip">📍 ${r.pincode}</span><span class="chip ph">📞 ${r.phone}</span><span class="chip dt">🕐 ${fmtDate(r.uploadedAt)}</span>`;
+  const dl=document.getElementById('mdl');
+  dl.href=r.photoUrl; dl.download=`tracking_${r.name}_${r.pincode}.jpg`;
+  document.getElementById('imod').classList.add('open');
+}
+function closeMod(){ document.getElementById('imod').classList.remove('open'); document.getElementById('mimg').src=''; }
+document.getElementById('imod').addEventListener('click',e=>{ if(e.target===document.getElementById('imod')) closeMod(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeMod(); });
+
+// Init
+loadCfg();
+// Auto-load if config exists
+const _c=JSON.parse(localStorage.getItem(CFGKEY)||'{}');
+if(_c.repo) loadAndSearch();
+</script>
+</body>
+</html>
